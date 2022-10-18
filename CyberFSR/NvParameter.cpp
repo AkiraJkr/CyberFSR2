@@ -140,6 +140,15 @@ void NvParameter::Set_Internal(const char* InName, unsigned long long InValue, N
 	case Util::NvParameter::RTXValue:
 		RTXValue = *inValueInt;
 		break;
+	case Util::NvParameter::FreeMemOnReleaseFeature:
+		FreeMemOnReleaseFeature = *inValueInt;
+		break;
+	case Util::NvParameter::CreationNodeMask:
+		CreationNodeMask = *inValueInt;
+		break;
+	case Util::NvParameter::VisibilityNodeMask:
+		VisibilityNodeMask = *inValueInt;
+		break;
 	case Util::NvParameter::Reset:
 		ResetRender = *inValueInt;
 		break;
@@ -195,6 +204,7 @@ void NvParameter::Set_Internal(const char* InName, unsigned long long InValue, N
 }
 
 NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_DLSS_GetOptimalSettingsCallback(NVSDK_NGX_Parameter* InParams);
+NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_DLSS_GetStatsCallback(NVSDK_NGX_Parameter* InParams);
 
 NVSDK_NGX_Result NvParameter::Get_Internal(const char* InName, unsigned long long* OutValue, NvParameterType ParameterType) const
 {
@@ -202,6 +212,7 @@ NVSDK_NGX_Result NvParameter::Get_Internal(const char* InName, unsigned long lon
 	auto outValueInt = (int*)OutValue;
 	auto outValueDouble = (double*)OutValue;
 	auto outValueUInt = (unsigned int*)OutValue;
+	auto outValueULL = (unsigned long long*)OutValue;
 	//Includes DirectX Resources
 	auto outValuePtr = (void**)OutValue;
 
@@ -211,13 +222,13 @@ NVSDK_NGX_Result NvParameter::Get_Internal(const char* InName, unsigned long lon
 		*outValueFloat = Sharpness;
 		break;
 	case Util::NvParameter::SuperSampling_Available:
-		*outValueInt = 1;
+		*outValueInt = true;
 		break;
 	case Util::NvParameter::SuperSampling_FeatureInitResult:
-		*outValueInt = 1;
+		*outValueInt = NVSDK_NGX_Result_Success;
 		break;
 	case Util::NvParameter::SuperSampling_NeedsUpdatedDriver:
-		*outValueInt = FALSE;
+		*outValueInt = 0;
 		break;
 	case Util::NvParameter::SuperSampling_MinDriverVersionMinor:
 	case Util::NvParameter::SuperSampling_MinDriverVersionMajor:
@@ -236,10 +247,10 @@ NVSDK_NGX_Result NvParameter::Get_Internal(const char* InName, unsigned long lon
 		*outValueInt = OutHeight;
 		break;
 	case Util::NvParameter::DLSS_Get_Dynamic_Max_Render_Width:
-		*outValueInt = OutWidth;
+		*outValueInt = Width;
 		break;
 	case Util::NvParameter::DLSS_Get_Dynamic_Max_Render_Height:
-		*outValueInt = OutHeight;
+		*outValueInt = Height;
 		break;
 	case Util::NvParameter::DLSS_Get_Dynamic_Min_Render_Width:
 		*outValueInt = OutWidth;
@@ -249,6 +260,18 @@ NVSDK_NGX_Result NvParameter::Get_Internal(const char* InName, unsigned long lon
 		break;
 	case Util::NvParameter::DLSSOptimalSettingsCallback:
 		*outValuePtr = NVSDK_NGX_DLSS_GetOptimalSettingsCallback;
+		break;
+	case Util::NvParameter::DLSSGetStatsCallback:
+		*outValuePtr = NVSDK_NGX_DLSS_GetStatsCallback;
+		break;
+	case Util::NvParameter::SizeInBytes:
+		*outValueULL = 0x1337; //Dummy value
+		break;
+	case Util::NvParameter::OptLevel:
+		*outValueInt = 0; //Dummy value
+		break;
+	case Util::NvParameter::IsDevSnippetBranch:
+		*outValueInt = 0; //Dummy value
 		break;
 	default:
 		return NVSDK_NGX_Result_Fail;
@@ -300,5 +323,12 @@ NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_DLSS_GetOptimalSettingsCallback(NVSDK_NGX_
 {
 	auto* params = (NvParameter*)InParams;
 	params->EvaluateRenderScale();
+	return NVSDK_NGX_Result_Success;
+}
+
+NVSDK_NGX_Result NVSDK_CONV NVSDK_NGX_DLSS_GetStatsCallback(NVSDK_NGX_Parameter* InParams)
+{
+	//Somehow check for allocated memory
+	//Then set values: SizeInBytes, OptLevel, IsDevSnippetBranch
 	return NVSDK_NGX_Result_Success;
 }

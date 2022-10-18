@@ -58,7 +58,7 @@ ViewMatrixHook::Cyberpunk2077::Cyberpunk2077()
 	*/
 
 	auto mod = (uint64_t)GetModuleHandleW(L"Cyberpunk2077.exe");
-	auto ptr1 = *((uintptr_t*)(mod + 0x4B6F888));
+	auto ptr1 = *((uintptr_t*)(mod + 0x4C390C0)); // F3 0F 7F 0D ? ? ? ? E8, +0x3
 	camParams = ((CameraParams*)(ptr1 + 0x60));
 }
 
@@ -84,7 +84,7 @@ float ViewMatrixHook::Cyberpunk2077::GetNearPlane()
 ViewMatrixHook::RDR2::RDR2()
 {
 	auto mod = (uint64_t)GetModuleHandleW(L"RDR2.exe");
-	camParams = (CameraParams*)(mod + 0x3E806E0);
+	camParams = (CameraParams*)(mod + 0x3EA2900);
 }
 
 float ViewMatrixHook::RDR2::GetFov()

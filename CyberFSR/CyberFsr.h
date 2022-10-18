@@ -2,6 +2,7 @@
 #include "pch.h"
 #include "ViewMatrixHook.h"
 #include "NvParameter.h"
+#include "DebugOverlay.h"
 
 class FeatureContext;
 
@@ -16,11 +17,11 @@ public:
 	VkInstance VulkanInstance;
 	VkPhysicalDevice VulkanPhysicalDevice;
 
-	std::vector<NVSDK_NGX_Parameter*> Parameters;
-	template<class T> NVSDK_NGX_Parameter* AllocateParameter();
-	void DeleteParameter(NVSDK_NGX_Parameter* parameter);
+	std::vector<std::unique_ptr<NvParameter>> Parameters;
+	NvParameter* AllocateParameter();
+	void DeleteParameter(NvParameter* parameter);
 
-	std::unordered_map <unsigned int, FeatureContext*> Contexts;
+	std::unordered_map <unsigned int, std::unique_ptr<FeatureContext>> Contexts;
 	FeatureContext* CreateContext();
 	void DeleteContext(NVSDK_NGX_Handle* handle);
 
@@ -37,7 +38,10 @@ public:
 	std::unique_ptr<ViewMatrixHook> ViewMatrix;
 	NVSDK_NGX_Handle Handle;
 	ID3D12Device* DxDevice;
-	std::unique_ptr<FfxFsr2Context> FsrContext;
+	FfxFsr2Context FsrContext;
+	FfxFsr2ContextDescription FsrContextDescription;
+	std::unique_ptr<DebugOverlay> DebugLayer;
+	std::vector<unsigned char> ScratchBuffer;
 
 	unsigned int Width{}, Height{}, RenderWidth{}, RenderHeight{};
 	NVSDK_NGX_PerfQuality_Value PerfQualityValue = NVSDK_NGX_PerfQuality_Value_Balanced;
@@ -45,11 +49,3 @@ public:
 	float MVScaleX{}, MVScaleY{};
 	float JitterOffsetX{}, JitterOffsetY{};
 };
-
-template<class T>
-inline NVSDK_NGX_Parameter* CyberFsrContext::AllocateParameter()
-{
-	auto* instance = new T();
-	Parameters.push_back((NVSDK_NGX_Parameter*)instance);
-	return instance;
-}

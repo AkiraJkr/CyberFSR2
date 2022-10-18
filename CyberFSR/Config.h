@@ -44,6 +44,10 @@ public:
 	std::optional<float> VerticalFOV;
 	std::optional<float> NearPlane;
 	std::optional<float> FarPlane;
+	std::optional<bool> InfiniteFarPlane;
+
+	//Hotfix for Steam Deck
+	std::optional<bool> DisableReactiveMask;
 
 	void Reload();
 
